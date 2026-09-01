@@ -3,12 +3,6 @@ options:
   bundleIdPrefix: com.xyzpodcast
   deploymentTarget:
     iOS: "15.0"
-settings:
-  base:
-    PRODUCT_NAME: XYZPodcast
-    SWIFT_VERSION: "5.0"
-    TARGETED_DEVICE_FAMILY: "1,2"
-    IPHONEOS_DEPLOYMENT_TARGET: "15.0"
 targets:
   XYZPodcast:
     type: application
@@ -22,3 +16,5 @@ targets:
         PRODUCT_BUNDLE_IDENTIFIER: com.xyzpodcast.app
         INFOPLIST_FILE: Info.plist
         CODE_SIGN_ENTITLEMENTS: XYZPodcast.entitlements
+        CODE_SIGNING_ALLOWED: NO
+        TARGETED_DEVICE_FAMILY: "1,2"
