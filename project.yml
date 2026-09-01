@@ -14,9 +14,11 @@ targets:
     type: application
     platform: iOS
     sources:
-      - path: XYZPodcast
+      - path: .
+        includes:
+          - "*.swift"
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.xyzpodcast.app
-        INFOPLIST_FILE: XYZPodcast/Info.plist
-        CODE_SIGN_ENTITLEMENTS: XYZPodcast/XYZPodcast.entitlements
+        INFOPLIST_FILE: Info.plist
+        CODE_SIGN_ENTITLEMENTS: XYZPodcast.entitlements
