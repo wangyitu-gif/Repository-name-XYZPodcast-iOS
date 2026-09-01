@@ -1,1 +1,34 @@
+name: Build IPA (TrollStore)
 
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install tools
+        run: brew install xcodegen ldid
+      - name: Generate project
+        run: xcodegen generate
+      - name: Build archive
+        run: |
+          xcodebuild archive \
+            -project XYZPodcast.xcodeproj \
+            -scheme XYZPodcast \
+            -configuration Release \
+            -destination 'generic/platform=iOS' \
+            -archivePath build/XYZPodcast.xcarchive \
+            CODE_SIGNING_ALLOWED=NO
+      - name: Package IPA
+        run: |
+          mkdir -p build/Payload
+          cp -r build/XYZPodcast.xcarchive/Products/Applications/XYZPodcast.app build/Payload/
+          cd build && zip -r XYZPodcast.ipa Payload
+      - uses: actions/upload-artifact@v4
+        with:
+          name: XYZPodcast-ipa
+          path: build/XYZPodcast.ipa
