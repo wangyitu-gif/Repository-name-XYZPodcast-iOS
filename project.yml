@@ -7,7 +7,7 @@ targets:
     sources:
       - path: .
         includes:
-          - "*.swift"
+          - "ViewController.swift"
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.xyzpodcast.app
