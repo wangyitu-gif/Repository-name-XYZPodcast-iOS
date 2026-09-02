@@ -1,12 +1,9 @@
 name: XYZPodcast
-options:
-  bundleIdPrefix: com.xyzpodcast
-  deploymentTarget:
-    iOS: "15.0"
 targets:
   XYZPodcast:
     type: application
     platform: iOS
+    deploymentTarget: '15.0'
     sources:
       - path: .
         includes:
@@ -15,6 +12,5 @@ targets:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.xyzpodcast.app
         INFOPLIST_FILE: Info.plist
-        CODE_SIGN_ENTITLEMENTS: XYZPodcast.entitlements
         CODE_SIGNING_ALLOWED: NO
         TARGETED_DEVICE_FAMILY: "1,2"
