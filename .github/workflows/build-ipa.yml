@@ -1,128 +1,27 @@
 name: Build IPA (TrollStore)
 
 on:
-  push:
-    branches: [ main ]
   workflow_dispatch:
+  push:
+    branches: [ main, master ]
 
 jobs:
   build:
-    runs-on: macos-15
+    runs-on: macos-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@v4
 
-      - name: Create Xcode project manually
-        run: |
-          mkdir -p XYZPodcast
-          cat > XYZPodcast/XYZPodcast.xcodeproj/project.pbxproj << 'PBXEOF'
-          // !$*UTF8*$!
-          {
-            archiveVersion = 1;
-            classes = {};
-            objectVersion = 55;
-            objects = {
-              PBXBuildFile Section = {};
-              PBXContainerItemProxy Section = {};
-              PBXCopyFilesBuildPhase Section = {};
-              PBXFileReference Section = {
-                ABC1234567890abcdef000001 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-                    ABC1234567890abcdef000002 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
-                  };
-                PBXFrameworksBuildPhase Section = {};
-                PBXGroup Section = {
-                  ABC1234567890abcdef000010 /* Main */ = {
-                    isa = PBXGroup;
-                    children = (
-                      ABC1234567890abcdef000002 /* ViewController.swift */,
-                      ABC1234567890abcdef000001 /* Info.plist */
-                    );
-                    path = ..;
-                    sourceTree = "<group>";
-                  };
-                };
-                PBXNativeTarget Section = {
-                  ABC1234567890abcdef000020 /* XYZPodcast */ = {
-                    isa = PBXNativeTarget;
-                    buildConfigurationList = ABC1234567890abcdef000030 /* Build config list */;
-                    buildPhases = ();
-                    buildRules = ();
-                    dependencies = ();
-                    name = XYZPodcast;
-                    productName = XYZPodcast;
-                    productReference = ABC1234567890abcdef000040 /* XYZPodcast.app */;
-                    productType = "com.apple.product-type.application";
-                  };
-                };
-                PBXProject Section = {
-                  ABC1234567890abcdef000050 /* Project object */ = {
-                    isa = PBXProject;
-                    buildConfigurationList = ABC1234567890abcdef000060 /* Build config list */;
-                    compatibilityVersion = "Xcode 14.0";
-                    developmentRegion = zh_CN;
-                    hasScannedForEncodings = 0;
-                    knownRegions = (en, Base, zh_CN);
-                    mainGroup = ABC1234567890abcdef000010 /* Main */;
-                    productRefGroup = ABC1234567890abcdef000070 /* Products */;
-                    projectDirPath = "";
-                    projectRoot = "";
-                    targets = (ABC1234567890abcdef000020 /* XYZPodcast */);
-                  };
-                };
-                PBXProductsBuildPhase Section = {};
-                PBXResourcesBuildPhase Section = {};
-                PBXSourcesBuildPhase Section = {};
-                PBXVariantGroup Section = {};
-                PBXTargetDependency Section = {};
-                XCBuildConfiguration Section = {
-                  ABC1234567890abcdef000100 /* Debug */ = {
-                    isa = XCBuildConfiguration;
-                    buildSettings = {
-                      CODE_SIGNING_ALLOWED = NO;
-                      CODE_SIGN_IDENTITY = "";
-                      INFOPLIST_FILE = Info.plist;
-                      PRODUCT_BUNDLE_IDENTIFIER = com.xyzpodcast.app;
-                      PRODUCT_NAME = "$(TARGET_NAME)";
-                      SWIFT_VERSION = 5.0;
-                      TARGETED_DEVICE_FAMILY = "1,2";
-                      IPHONEOS_DEPLOYMENT_TARGET = 15.0;
-                    };
-                    name = Debug;
-                  };
-                  ABC1234567890abcdef000101 /* Release */ = {
-                    isa = XCBuildConfiguration;
-                    buildSettings = {
-                      CODE_SIGNING_ALLOWED = NO;
-                      CODE_SIGN_IDENTITY = "";
-                      INFOPLIST_FILE = Info.plist;
-                      PRODUCT_BUNDLE_IDENTIFIER = com.xyzpodcast.app;
-                      PRODUCT_NAME = "$(TARGET_NAME)";
-                      SWIFT_VERSION = 5.0;
-                      TARGETED_DEVICE_FAMILY = "1,2";
-                      IPHONEOS_DEPLOYMENT_TARGET = 15.0;
-                    };
-                    name = Release;
-                  };
-                };
-                XCConfigurationList Section = {
-                  ABC1234567890abcdef000030 /* Build config list for target */ = {
-                    isa = XCConfigurationList;
-                    buildConfigurations = (ABC1234567890abcdef000100, ABC1234567890abcdef000101);
-                    defaultConfigurationIsVisible = 0;
-                    defaultConfigurationName = Release;
-                  };
-                  ABC1234567890abcdef000060 /* Build config list for project */ = {
-                    isa = XCConfigurationList;
-                    buildConfigurations = (ABC1234567890abcdef000100, ABC1234567890abcdef000101);
-                    defaultConfigurationIsVisible = 0;
-                    defaultConfigurationName = Release;
-                  };
-                };
-              };
-              rootObject = ABC1234567890abcdef000050 /* Project object */;
-          }
-          PBXEOF
+      - name: Select Xcode
+        run: sudo xcode-select -s $(ls -d /Applications/Xcode*.app | head -1)/Contents/Developer
 
-      - name: Build archive
+      - name: Clean stale files
+        run: rm -rf XYZPodcast/AppDelegate.swift XYZPodcast/SceneDelegate.swift XYZPodcast/XYZPodcast.entitlements XYZPodcast/project.yml
+
+      - name: Debug tree
+        run: find XYZPodcast -type f
+
+      - name: Archive (unsigned)
         run: |
           xcodebuild archive \
             -project XYZPodcast/XYZPodcast.xcodeproj \
@@ -132,16 +31,16 @@ jobs:
             -archivePath build/XYZPodcast.xcarchive \
             CODE_SIGNING_ALLOWED=NO \
             CODE_SIGN_IDENTITY="" \
-            CODE_SIGNING_REQUIRED=NO \
-            SWIFT_VERSION=5.0 | xcpretty
+            DEVELOPMENT_TEAM=""
 
       - name: Package IPA
         run: |
           mkdir -p build/Payload
-          cp -r build/XYZPodcast.xcarchive/Products/Applications/XYZPodcast.app build/Payload/
-          cd build && zip -r ../XYZPodcast.ipa Payload
+          cp -r "build/XYZPodcast.xcarchive/Products/Applications/XYZPodcast.app" build/Payload/
+          cd build && zip -r XYZPodcast.ipa Payload && cd ..
 
-      - uses: actions/upload-artifact@v4
+      - name: Upload IPA artifact
+        uses: actions/upload-artifact@v4
         with:
           name: XYZPodcast-ipa
-          path: XYZPodcast.ipa
+          path: build/XYZPodcast.ipa
